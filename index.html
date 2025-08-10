@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>GoldHEN PS4 Payload Loader</title>
+<style>
+  body {
+    margin: 0;
+    background: #121212;
+    color: #c0c0c0;
+    font-family: monospace, monospace;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100vh;
+    padding: 3rem 1rem;
+  }
+  h1 {
+    color: #1e90ff;
+    margin-bottom: 0.2rem;
+  }
+  p {
+    margin-top: 0;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    user-select: none;
+  }
+  #loadBtn {
+    background: #1e90ff;
+    border: none;
+    border-radius: 8px;
+    padding: 1rem 2.5rem;
+    font-size: 1.2rem;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 0 15px #1e90ffaa;
+    transition: background 0.3s ease;
+    user-select: none;
+  }
+  #loadBtn:disabled {
+    background: #555;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  #loader {
+    margin-top: 2rem;
+    width: 80%;
+    max-width: 600px;
+    height: 24px;
+    background: #222;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 15px #1e90ff66 inset;
+    display: none;
+  }
+  #progress {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #0078ff, #00d1ff);
+    border-radius: 12px 0 0 12px;
+    box-shadow: 0 0 20px #00d1ff;
+    transition: width 0.25s ease;
+  }
+  #status {
+    margin-top: 1rem;
+    min-height: 1.5rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+
+  <h1>GoldHEN PS4 Payload Loader</h1>
+  <p>Loading payload.bin and injecting jailbreak into your PS4 system</p>
+  <button id="loadBtn">Start Jailbreak</button>
+
+  <div id="loader">
+    <div id="progress"></div>
+  </div>
+  <div id="status"></div>
+
+<script>
+  const loadBtn = document.getElementById('loadBtn');
+  const loader = document.getElementById('loader');
+  const progressBar = document.getElementById('progress');
+  const status = document.getElementById('status');
+
+  const steps = [
+    "Connecting to PS4...",
+    "Checking firmware version...",
+    "Bypassing security checks...",
+    "Injecting GoldHEN payload...",
+    "Verifying jailbreak status...",
+    "Finalizing and cleaning up..."
+  ];
+
+  function fakeLoading() {
+    loadBtn.disabled = true;
+    loader.style.display = 'block';
+    status.textContent = steps[0];
+    let stepIndex = 0;
+    let progress = 0;
+
+    // ~30% chance to fail
+    const willFail = Math.random() < 0.3;
+
+    console.clear();
+    console.log('[GoldHEN Loader] Starting jailbreak sequence...');
+
+    const interval = setInterval(() => {
+      progress += Math.random() * 8 + 4;
+
+      if (progress >= ((stepIndex + 1) / steps.length) * 100) {
+        console.log(`[GoldHEN] ${steps[stepIndex]} - OK`);
+        status.textContent = steps[stepIndex];
+        stepIndex++;
+      }
+
+      progressBar.style.width = Math.min(progress, 100) + '%';
+
+      if (stepIndex >= steps.length) {
+        clearInterval(interval);
+        setTimeout(() => {
+          if (willFail) {
+            alert(
+              "*** SYSTEM ERROR ***\n" +
+              "Payload injection failed with error code 0xDEADCAFE\n" +
+              "System halted to prevent damage.\n" +
+              "Contact support or restart your PS4."
+            );
+          } else {
+            alert('GoldHEN loaded! Your PS4 is now jailbroken.');
+          }
+          loadBtn.disabled = false;
+          progressBar.style.width = '0%';
+          loader.style.display = 'none';
+          status.textContent = '';
+        }, 600);
+      }
+    }, 350);
+  }
+
+  loadBtn.addEventListener('click', fakeLoading);
+</script>
+
+</body>
+</html>
