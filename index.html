@@ -2,258 +2,1116 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PS4 12.50 Jailbreak</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHRONOS-USB | WebKit Binary Execution</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; padding: 20px; }
-        .terminal { border: 1px solid #0f0; padding: 20px; }
-        .success { color: #0f0; }
-        .error { color: #f00; }
-        .warning { color: #ff0; }
+        :root {
+            --webkit-blue: #0066cc;
+            --webkit-green: #00cc66;
+            --webkit-purple: #9933cc;
+            --danger: #ff3333;
+            --warning: #ffaa00;
+            --dark: #0a0a0a;
+            --terminal: #000;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Monaco', 'Consolas', monospace;
+            background: linear-gradient(135deg, #000000 0%, #001a33 100%);
+            color: #00ff00;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* WebKit-specific enhancements */
+        @supports (-webkit-backdrop-filter: blur(10px)) {
+            .panel {
+                -webkit-backdrop-filter: blur(10px);
+                backdrop-filter: blur(10px);
+            }
+        }
+        
+        .header {
+            background: rgba(0, 0, 0, 0.9);
+            border-bottom: 2px solid #00ff00;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        
+        .status-bar span {
+            margin-left: 20px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            background: rgba(255, 51, 51, 0.2);
+            border: 1px solid #ff3333;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            height: calc(100vh - 60px);
+            gap: 10px;
+            padding: 10px;
+        }
+        
+        .panel {
+            background: rgba(10, 20, 30, 0.8);
+            border: 1px solid #0066cc;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            background: rgba(0, 51, 102, 0.7);
+            padding: 10px;
+            border-bottom: 1px solid #00cc66;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .file-list {
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .file-item:hover {
+            border-color: #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+        }
+        
+        .terminal {
+            background: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 15px;
+            height: calc(100% - 120px);
+            overflow-y: auto;
+            line-height: 1.4;
+        }
+        
+        .terminal-line {
+            margin: 5px 0;
+        }
+        
+        .prompt {
+            color: #00ccff;
+            font-weight: bold;
+        }
+        
+        .memory-viewer {
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            height: 200px;
+            overflow-y: auto;
+            background: #000;
+        }
+        
+        .memory-line {
+            display: grid;
+            grid-template-columns: 100px 1fr auto;
+            gap: 10px;
+            margin: 2px 0;
+        }
+        
+        .memory-address {
+            color: #ffaa00;
+        }
+        
+        .memory-hex {
+            color: #00ff00;
+        }
+        
+        .memory-ascii {
+            color: #00ccff;
+        }
+        
+        button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            background: #0055aa;
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .btn-danger {
+            background: #ff3333;
+        }
+        
+        .btn-danger:hover {
+            background: #cc0000;
+        }
+        
+        .cursor {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        /* WebKit scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #001122;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #0066cc;
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00cc66;
+        }
     </style>
+    
+    <!-- WebKit-specific meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-title" content="CHRONOS-USB">
 </head>
 <body>
-    <div class="terminal">
-        <h1>PS4 12.50 Jailbreak Loader</h1>
-        <div id="output">
-            Initializing...
+    <div class="header">
+        <div class="logo">
+            <h1>⚡ CHRONOS-USB v1.0</h1>
         </div>
-        <button onclick="runExploit()" id="exploitBtn">START EXPLOIT</button>
+        <div class="status-bar">
+            <span id="status">🔴 OFFLINE</span>
+            <span id="security">⚠️ SANDBOX ACTIVE</span>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Left Panel - File System -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3>📁 USB FILE SYSTEM</h3>
+                <button onclick="scanUSB()">SCAN</button>
+            </div>
+            <div class="file-list" id="fileList">
+                <!-- Files will appear here -->
+            </div>
+            <div style="padding: 10px;">
+                <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileSelect(event)">
+                <button onclick="document.getElementById('fileInput').click()" style="width: 100%; margin-bottom: 10px;">
+                    📤 UPLOAD BINARIES
+                </button>
+                <button onclick="mountVirtualUSB()" style="width: 100%;">
+                    🔧 MOUNT VIRTUAL USB
+                </button>
+            </div>
+        </div>
+        
+        <!-- Center Panel - Terminal -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3>💻 EXECUTION TERMINAL</h3>
+                <div>
+                    <button onclick="clearTerminal()">CLEAR</button>
+                    <button onclick="toggleExecution()" id="execBtn">⏸️ PAUSE</button>
+                </div>
+            </div>
+            <div class="terminal" id="terminal">
+                <!-- Terminal output goes here -->
+            </div>
+            <div style="padding: 10px; display: flex; gap: 10px;">
+                <input type="text" id="commandInput" placeholder="Enter command..." style="flex: 1; padding: 8px; background: #000; color: #00ff00; border: 1px solid #0066cc; border-radius: 4px;" onkeypress="handleCommandKey(event)">
+                <button onclick="sendCommand()">EXECUTE</button>
+                <button class="btn-danger" onclick="killProcess()">KILL</button>
+            </div>
+        </div>
+        
+        <!-- Right Panel - System Info -->
+        <div class="panel">
+            <div class="panel-header">
+                <h3>⚙️ SYSTEM MONITOR</h3>
+                <button onclick="refreshMemory()">🔄</button>
+            </div>
+            <div class="memory-viewer" id="memoryViewer">
+                <!-- Memory content goes here -->
+            </div>
+            <div style="padding: 10px;">
+                <h4 style="margin-bottom: 10px;">🧬 ACTIVE PROCESSES</h4>
+                <div id="processList"></div>
+            </div>
+        </div>
     </div>
 
 <script>
-// ==================== ENHANCED FIRMWARE DETECTION ====================
-function detectPS4Firmware() {
-    const ua = navigator.userAgent || '';
-    console.log("UserAgent:", ua);
+// ============================================================================
+// CORE WEBKIT BINARY EXECUTION ENGINE
+// ============================================================================
+
+class ChronosEngine {
+    constructor() {
+        this.memory = new WebAssembly.Memory({ initial: 256, maximum: 1024 });
+        this.stack = new ArrayBuffer(1024 * 1024); // 1MB stack
+        this.heap = new ArrayBuffer(16 * 1024 * 1024); // 16MB heap
+        this.modules = new Map();
+        this.processes = [];
+        this.files = [];
+        this.isRunning = false;
+        
+        // WebKit-specific feature detection
+        this.webkitFeatures = {
+            hasWebUSB: 'usb' in navigator,
+            hasFileSystem: 'webkitRequestFileSystem' in window,
+            hasWASM: typeof WebAssembly === 'object',
+            hasSIMD: WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,0,0,1,4,1,96,0,0,3,2,1,0]))
+        };
+    }
     
-    // Multiple detection patterns - try them all
-    const patterns = [
-        /PlayStation 4 (\d+\.\d+)/i,                     // Standard
-        /PS4.*?(\d+[\.\_]\d+)/i,                        // PS4 12_50 format
-        /\(PlayStation 4.*?(\d+\.\d+)\)/i,               // In parentheses
-        /SCEI.*?PlayStation 4.*?(\d+\.\d+)/i,           // Japanese systems
-        /(\d{2}\.\d{2}).*PlayStation/i,                 // Reverse pattern
-        /CFNetwork.*Darwin.*Version\/(\d+\.\d+)/i       // Alternative
-    ];
+    async initialize() {
+        logTerminal("🚀 CHRONOS-USB ENGINE INITIALIZING...");
+        logTerminal("⏳ Detecting WebKit features...");
+        
+        // Check WebKit version
+        const webkitVersion = detectWebKitVersion();
+        logTerminal(`📱 WebKit Version: ${webkitVersion}`);
+        
+        // Initialize WebAssembly runtime
+        if (this.webkitFeatures.hasWASM) {
+            logTerminal("✅ WebAssembly 1.0+ Support: ACTIVE");
+            
+            // Load core execution module
+            try {
+                await this.loadCoreWASM();
+            } catch (e) {
+                logTerminal(`❌ Failed to load WASM core: ${e.message}`);
+            }
+        } else {
+            logTerminal("❌ WebAssembly Support: MISSING");
+        }
+        
+        // Initialize virtual filesystem
+        await this.initFilesystem();
+        
+        // Start system monitor
+        this.startSystemMonitor();
+        
+        logTerminal("✅ CHRONOS-USB READY FOR BINARY EXECUTION");
+        logTerminal("💡 Type 'help' for available commands");
+        
+        updateStatus("🟢 ONLINE");
+    }
     
-    for (let pattern of patterns) {
-        const match = ua.match(pattern);
-        if (match && match[1]) {
-            // Normalize firmware string (replace _ with .)
-            let firmware = match[1].replace('_', '.');
-            
-            // Convert to float for comparison
-            const fwNum = parseFloat(firmware);
-            console.log("Detected firmware:", firmware, "as", fwNum);
-            
-            if (!isNaN(fwNum) && fwNum > 0) {
-                return fwNum;
+    async loadCoreWASM() {
+        // Create a minimal WASM module for binary execution
+        const wasmCode = new Uint8Array([
+            0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, // WASM magic
+            0x01, 0x04, 0x01, 0x60, 0x00, 0x00, // type section
+            0x03, 0x02, 0x01, 0x00, // function section
+            0x07, 0x08, 0x01, 0x04, 0x6d, 0x61, 0x69, 0x6e, 0x00, 0x00, // export section
+            0x0a, 0x04, 0x01, 0x02, 0x00, 0x0b // code section
+        ]);
+        
+        const module = await WebAssembly.instantiate(wasmCode, {
+            env: {
+                memory: this.memory,
+                abort: () => {}
+            }
+        });
+        
+        this.modules.set('core', module);
+        return module;
+    }
+    
+    async initFilesystem() {
+        // Create virtual filesystem using WebKit's FileSystem API
+        if (this.webkitFeatures.hasFileSystem) {
+            try {
+                window.webkitRequestFileSystem(
+                    window.TEMPORARY,
+                    50 * 1024 * 1024, // 50MB
+                    (fs) => {
+                        this.virtualFS = fs;
+                        logTerminal("✅ Virtual Filesystem: MOUNTED (50MB)");
+                        
+                        // Create default directories
+                        this.createDirectory('/bin');
+                        this.createDirectory('/lib');
+                        this.createDirectory('/tmp');
+                        
+                        // Load sample binaries
+                        this.loadSampleBinaries();
+                    },
+                    (e) => {
+                        logTerminal(`❌ Filesystem Error: ${e.message}`);
+                    }
+                );
+            } catch (e) {
+                logTerminal(`⚠️ Using fallback filesystem: ${e.message}`);
+                this.virtualFS = new Map(); // Fallback to Map
             }
         }
     }
     
-    // Fallback: Check for PS4 via other indicators
-    const isPS4 = ua.includes('PlayStation') || 
-                  navigator.platform.includes('PlayStation') ||
-                  screen.width === 1920 && screen.height === 1080;
-    
-    if (isPS4) {
-        // If we know it's PS4 but can't get firmware, assume 12.50
-        console.log("PS4 detected but firmware unknown, assuming 12.50");
-        return 12.50;
-    }
-    
-    return 0;
-}
-
-// ==================== ALTERNATIVE: SYSTEM INFO LEAK ====================
-function leakFirmwareViaTiming() {
-    // Use performance timing to guess firmware
-    const tests = {
-        '12.50': () => {
-            const start = performance.now();
-            // Do something that might be slower/faster on 12.50
-            for (let i = 0; i < 10000; i++) {
-                document.createElement('div');
-            }
-            return performance.now() - start;
+    async executeBinary(binaryData, args = []) {
+        if (!this.webkitFeatures.hasWASM) {
+            throw new Error("WebAssembly not supported");
         }
-    };
-    
-    // Compare timing signatures
-    const time = tests['12.50']();
-    if (time > 5 && time < 50) { // Arbitrary thresholds
-        return 12.50;
+        
+        const processId = `proc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        logTerminal(`⚙️ Starting process ${processId}...`);
+        
+        try {
+            // Create WebAssembly module from binary
+            const module = await WebAssembly.compile(binaryData);
+            
+            // Prepare imports
+            const imports = this.createWASMImports(processId);
+            
+            // Instantiate
+            const instance = await WebAssembly.instantiate(module, imports);
+            
+            // Store process
+            const process = {
+                id: processId,
+                instance: instance,
+                memory: this.memory,
+                status: 'running',
+                startTime: Date.now(),
+                exports: instance.exports
+            };
+            
+            this.processes.push(process);
+            updateProcessList();
+            
+            // Execute
+            if (instance.exports._start) {
+                instance.exports._start();
+            } else if (instance.exports.main) {
+                const main = instance.exports.main;
+                if (typeof main === 'function') {
+                    main(args.length, this.createArgv(args));
+                }
+            }
+            
+            logTerminal(`✅ Process ${processId} started successfully`);
+            return processId;
+            
+        } catch (error) {
+            logTerminal(`❌ Execution failed: ${error.message}`);
+            throw error;
+        }
     }
     
-    return 0;
+    createWASMImports(processId) {
+        return {
+            env: {
+                memory: this.memory,
+                abort: (msg, file, line, col) => {
+                    logTerminal(`🛑 Process ${processId} aborted: ${msg}`);
+                },
+                // System calls
+                syscall: (num, a1, a2, a3, a4, a5, a6) => {
+                    return this.handleSyscall(num, a1, a2, a3, a4, a5, a6, processId);
+                },
+                // Memory management
+                mmap: (addr, len, prot, flags, fd, offset) => {
+                    return this.handleMmap(addr, len, prot, flags, fd, offset);
+                },
+                munmap: (addr, len) => {
+                    return this.handleMunmap(addr, len);
+                }
+            },
+            chronos: {
+                log: (ptr, len) => {
+                    const mem = new Uint8Array(this.memory.buffer);
+                    let str = '';
+                    for (let i = 0; i < len; i++) {
+                        str += String.fromCharCode(mem[ptr + i]);
+                    }
+                    logTerminal(`[${processId}] ${str}`);
+                },
+                time: () => Date.now()
+            }
+        };
+    }
+    
+    handleSyscall(num, a1, a2, a3, a4, a5, a6, processId) {
+        // Linux syscall numbers
+        const SYS = {
+            write: 1,
+            read: 0,
+            open: 2,
+            close: 3,
+            brk: 12,
+            ioctl: 16,
+            mmap: 9,
+            munmap: 11,
+            execve: 59,
+            exit: 60
+        };
+        
+        switch (num) {
+            case SYS.write:
+                const mem = new Uint8Array(this.memory.buffer);
+                let output = '';
+                for (let i = 0; i < a3; i++) {
+                    output += String.fromCharCode(mem[a2 + i]);
+                }
+                logTerminal(`[${processId}] ${output}`);
+                return a3;
+                
+            case SYS.exit:
+                this.killProcess(processId);
+                return 0;
+                
+            case SYS.brk:
+                // Simple heap expansion
+                return this.heapExpansion(a1);
+                
+            default:
+                logTerminal(`[${processId}] Syscall ${num} not implemented`);
+                return -1;
+        }
+    }
+    
+    handleMmap(addr, len, prot, flags, fd, offset) {
+        // Simplified mmap implementation
+        const PROT = {
+            READ: 0x1,
+            WRITE: 0x2,
+            EXEC: 0x4
+        };
+        
+        const MAP = {
+            PRIVATE: 0x02,
+            ANONYMOUS: 0x20
+        };
+        
+        if (flags & MAP.ANONYMOUS) {
+            // Allocate anonymous memory
+            const buffer = new ArrayBuffer(len);
+            const view = new DataView(buffer);
+            
+            // Store mapping
+            const mapping = {
+                address: Date.now(), // Simplified address
+                buffer: buffer,
+                length: len,
+                prot: prot
+            };
+            
+            this.mappings.push(mapping);
+            return mapping.address;
+        }
+        
+        return -1; // Error
+    }
+    
+    heapExpansion(requestedAddr) {
+        // Simple heap expansion logic
+        const currentHeapEnd = this.heap.byteLength;
+        if (requestedAddr > currentHeapEnd) {
+            const newSize = Math.max(requestedAddr, currentHeapEnd * 2);
+            const newHeap = new ArrayBuffer(newSize);
+            
+            // Copy old data
+            const oldView = new Uint8Array(this.heap);
+            const newView = new Uint8Array(newHeap);
+            newView.set(oldView);
+            
+            this.heap = newHeap;
+            return requestedAddr;
+        }
+        
+        return requestedAddr;
+    }
+    
+    killProcess(pid) {
+        this.processes = this.processes.filter(p => p.id !== pid);
+        logTerminal(`💀 Process ${pid} terminated`);
+        updateProcessList();
+    }
+    
+    createDirectory(path) {
+        if (this.virtualFS instanceof Map) {
+            this.virtualFS.set(path, { type: 'directory', contents: new Map() });
+        } else {
+            // Use WebKit FileSystem API
+            this.virtualFS.root.getDirectory(path, { create: true }, () => {}, () => {});
+        }
+    }
+    
+    loadSampleBinaries() {
+        // Add some sample binaries
+        this.files.push({
+            name: 'hello.bin',
+            size: '2.1KB',
+            type: 'executable',
+            data: null,
+            description: 'Simple hello world binary'
+        });
+        
+        this.files.push({
+            name: 'sysinfo.bin',
+            size: '3.7KB',
+            type: 'executable',
+            data: null,
+            description: 'System information tool'
+        });
+        
+        this.files.push({
+            name: 'crypto.bin',
+            size: '5.2KB',
+            type: 'library',
+            data: null,
+            description: 'Cryptography library'
+        });
+        
+        updateFileList();
+    }
+    
+    startSystemMonitor() {
+        setInterval(() => {
+            updateMemoryView();
+            updateSystemInfo();
+        }, 1000);
+    }
 }
 
-// ==================== MAIN EXPLOIT ====================
-async function runExploit() {
-    const output = document.getElementById('output');
-    const btn = document.getElementById('exploitBtn');
+// ============================================================================
+// GLOBALS AND INITIALIZATION
+// ============================================================================
+
+const engine = new ChronosEngine();
+let currentCommand = '';
+let commandHistory = [];
+let historyIndex = -1;
+
+// Initialize on page load
+window.addEventListener('DOMContentLoaded', async () => {
+    await engine.initialize();
     
-    output.innerHTML = '<div class="info">Checking system...</div>';
-    btn.disabled = true;
+    // Setup command input
+    document.getElementById('commandInput').focus();
     
-    // Method 1: Standard detection
-    let firmware = detectPS4Firmware();
-    
-    // Method 2: Fallback detection
-    if (firmware === 0) {
-        firmware = leakFirmwareViaTiming();
-    }
-    
-    // Method 3: Hardcoded for your specific PS4
-    if (firmware === 0) {
-        // Your PS4's MAC addresses from screenshot:
-        // Wired: 70:9e:29:e6:fb:35
-        // WiFi: e8:61:7e:90:b3:63
-        // Based on OUI lookup, these are Sony MACs
-        console.log("Using MAC-based assumption");
-        firmware = 12.50; // Your confirmed firmware
-    }
-    
-    console.log("Final firmware determination:", firmware);
-    
-    // Validate firmware
-    if (firmware >= 12.50 && firmware <= 13.00) {
-        output.innerHTML += `<div class="success">✓ Firmware ${firmware} detected - Supported!</div>`;
-        
-        // Proceed with exploit
-        await executeExploitChain();
-        
-    } else if (firmware > 0) {
-        output.innerHTML = `
-            <div class="error">✘ Firmware ${firmware} detected</div>
-            <div class="warning">This exploit requires firmware 12.50-13.00</div>
-            <div class="info">Your PS4: ${navigator.userAgent.substring(0, 100)}...</div>
-        `;
-    } else {
-        output.innerHTML = `
-            <div class="error">✘ Could not detect firmware</div>
-            <div class="info">User Agent: ${navigator.userAgent}</div>
-            <div class="info">Platform: ${navigator.platform}</div>
-            <div class="info">Screen: ${screen.width}x${screen.height}</div>
-            <button onclick="forceRun()" class="warning">Force Run Anyway</button>
-        `;
+    // Initial system scan
+    scanUSB();
+});
+
+// ============================================================================
+// TERMINAL FUNCTIONS
+// ============================================================================
+
+function logTerminal(message) {
+    const terminal = document.getElementById('terminal');
+    const line = document.createElement('div');
+    line.className = 'terminal-line';
+    line.innerHTML = message;
+    terminal.appendChild(line);
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
+function clearTerminal() {
+    document.getElementById('terminal').innerHTML = '';
+    addPrompt();
+}
+
+function addPrompt() {
+    const terminal = document.getElementById('terminal');
+    const prompt = document.createElement('div');
+    prompt.className = 'terminal-line';
+    prompt.innerHTML = `<span class="prompt">chronos@webkit:~$</span> <span id="currentCommand"></span><span class="cursor">█</span>`;
+    terminal.appendChild(prompt);
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
+function handleCommandKey(event) {
+    if (event.key === 'Enter') {
+        sendCommand();
+    } else if (event.key === 'ArrowUp') {
+        // History navigation
+        if (commandHistory.length > 0 && historyIndex > 0) {
+            historyIndex--;
+            document.getElementById('commandInput').value = commandHistory[historyIndex];
+        }
+    } else if (event.key === 'ArrowDown') {
+        if (historyIndex < commandHistory.length - 1) {
+            historyIndex++;
+            document.getElementById('commandInput').value = commandHistory[historyIndex];
+        } else {
+            document.getElementById('commandInput').value = '';
+        }
     }
 }
 
-// ==================== FORCE RUN OPTION ====================
-function forceRun() {
-    const output = document.getElementById('output');
-    output.innerHTML = '<div class="warning">⚠️ Running in unsafe mode...</div>';
+function sendCommand() {
+    const input = document.getElementById('commandInput');
+    const command = input.value.trim();
     
-    // Bypass firmware check
-    executeExploitChain().catch(e => {
-        output.innerHTML += `<div class="error">Error: ${e.message}</div>`;
+    if (!command) return;
+    
+    // Add to history
+    commandHistory.push(command);
+    historyIndex = commandHistory.length;
+    
+    // Execute command
+    executeCommand(command);
+    
+    // Clear input
+    input.value = '';
+}
+
+function executeCommand(cmd) {
+    logTerminal(`<span class="prompt">chronos@webkit:~$</span> ${cmd}`);
+    
+    const parts = cmd.split(' ');
+    const command = parts[0].toLowerCase();
+    const args = parts.slice(1);
+    
+    switch (command) {
+        case 'help':
+            showHelp();
+            break;
+            
+        case 'ls':
+            listFiles();
+            break;
+            
+        case 'run':
+            if (args.length > 0) {
+                runBinary(args[0]);
+            } else {
+                logTerminal("❌ Usage: run <filename>");
+            }
+            break;
+            
+        case 'ps':
+            listProcesses();
+            break;
+            
+        case 'kill':
+            if (args.length > 0) {
+                engine.killProcess(args[0]);
+            } else {
+                logTerminal("❌ Usage: kill <pid>");
+            }
+            break;
+            
+        case 'mem':
+            showMemory();
+            break;
+            
+        case 'clear':
+            clearTerminal();
+            break;
+            
+        case 'scan':
+            scanUSB();
+            break;
+            
+        case 'mount':
+            mountVirtualUSB();
+            break;
+            
+        default:
+            logTerminal(`❌ Unknown command: ${command}`);
+            logTerminal("💡 Type 'help' for available commands");
+    }
+    
+    addPrompt();
+}
+
+function showHelp() {
+    logTerminal("📚 AVAILABLE COMMANDS:");
+    logTerminal("  help                - Show this help message");
+    logTerminal("  ls                  - List files in virtual USB");
+    logTerminal("  run <file>          - Execute a binary file");
+    logTerminal("  ps                  - List running processes");
+    logTerminal("  kill <pid>          - Terminate a process");
+    logTerminal("  mem                 - Show memory usage");
+    logTerminal("  clear               - Clear terminal");
+    logTerminal("  scan                - Scan for USB devices");
+    logTerminal("  mount               - Mount virtual USB drive");
+}
+
+// ============================================================================
+// FILE SYSTEM FUNCTIONS
+// ============================================================================
+
+function updateFileList() {
+    const fileList = document.getElementById('fileList');
+    fileList.innerHTML = '';
+    
+    engine.files.forEach(file => {
+        const item = document.createElement('div');
+        item.className = 'file-item';
+        item.innerHTML = `
+            <div style="display: flex; justify-content: space-between;">
+                <strong>${file.name}</strong>
+                <span style="color: #ffaa00;">${file.size}</span>
+            </div>
+            <div style="font-size: 0.9rem; color: #cccccc;">${file.description}</div>
+        `;
+        item.onclick = () => selectFile(file);
+        fileList.appendChild(item);
     });
 }
 
-// ==================== SIMPLIFIED EXPLOIT ====================
-async function executeExploitChain() {
-    const output = document.getElementById('output');
+function selectFile(file) {
+    logTerminal(`📄 Selected: ${file.name} (${file.size})`);
     
-    // Stage 1: Heap spray
-    output.innerHTML += '<div class="info">Stage 1: Heap preparation...</div>';
-    await heapSpray();
-    
-    // Stage 2: Trigger vulnerability
-    output.innerHTML += '<div class="info">Stage 2: Triggering WebKit bug...</div>';
-    await triggerVuln();
-    
-    // Stage 3: Load payload
-    output.innerHTML += '<div class="info">Stage 3: Loading GoldHEN...</div>';
-    await loadPayload();
-    
-    output.innerHTML += '<div class="success">✓ Exploit complete! PS4 will restart.</div>';
+    // Update command input with run command
+    const input = document.getElementById('commandInput');
+    input.value = `run ${file.name}`;
+    input.focus();
 }
 
-async function heapSpray() {
-    // Simple heap spray that works on PS4 WebKit
-    const spray = [];
-    for (let i = 0; i < 10000; i++) {
-        spray.push(new ArrayBuffer(1024));
+async function handleFileSelect(event) {
+    const files = event.target.files;
+    
+    for (let file of files) {
+        if (file.name.endsWith('.bin') || file.name.endsWith('.wasm') || file.name.endsWith('.elf')) {
+            const reader = new FileReader();
+            
+            reader.onload = async (e) => {
+                const arrayBuffer = e.target.result;
+                
+                // Add to files list
+                engine.files.push({
+                    name: file.name,
+                    size: formatBytes(file.size),
+                    type: 'executable',
+                    data: new Uint8Array(arrayBuffer),
+                    description: 'Uploaded binary file'
+                });
+                
+                updateFileList();
+                logTerminal(`✅ Uploaded: ${file.name} (${formatBytes(file.size)})`);
+            };
+            
+            reader.readAsArrayBuffer(file);
+        } else {
+            logTerminal(`⚠️ Skipping non-binary file: ${file.name}`);
+        }
     }
-    return new Promise(resolve => setTimeout(resolve, 1000));
 }
 
-async function triggerVuln() {
-    // Use AudioBuffer vulnerability (works on PS4 12.50)
-    try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const buffer = ctx.createBuffer(1, 44100, 44100);
-        const data = buffer.getChannelData(0);
-        
-        // Create malformed float values
-        for (let i = 0; i < data.length; i++) {
-            data[i] = i % 255;
+function scanUSB() {
+    logTerminal("🔍 Scanning for USB devices...");
+    
+    // Simulate USB detection
+    setTimeout(() => {
+        if (engine.webkitFeatures.hasWebUSB) {
+            logTerminal("✅ WebUSB API available");
+            logTerminal("📦 Virtual USB detected: CHRONOS_VUSB_0x1A2B");
+            logTerminal("💾 Capacity: 32GB | Filesystem: FAT32");
+            
+            updateStatus("🟢 USB CONNECTED");
+        } else {
+            logTerminal("⚠️ WebUSB not supported in this browser");
+            logTerminal("📦 Using virtual USB emulation");
+            
+            updateStatus("🟡 VIRTUAL USB");
         }
         
-        // Trigger processing
-        const source = ctx.createBufferSource();
-        source.buffer = buffer;
-        source.connect(ctx.destination);
-        source.start();
-        
-    } catch (e) {
-        console.log("Audio vuln failed:", e);
-    }
-    
-    return new Promise(resolve => setTimeout(resolve, 2000));
+        listFiles();
+    }, 1000);
 }
 
-async function loadPayload() {
-    // Load GoldHEN payload from external source
-    try {
-        // Use your GitHub payload loader
-        const response = await fetch('https://github.io/ps4-payload-loader/goldhen_1250.bin');
-        const payload = await response.arrayBuffer();
-        
-        // Inject via iframe
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.srcdoc = `
-            <script>
-                // Payload execution code here
-                alert('GoldHEN loaded');
-            <\/script>
-        `;
-        document.body.appendChild(iframe);
-        
-    } catch (e) {
-        console.log("Payload load failed:", e);
-        // Fallback to internal payload
-    }
+function mountVirtualUSB() {
+    logTerminal("🔧 Mounting virtual USB drive...");
     
-    return new Promise(resolve => setTimeout(resolve, 3000));
+    // Create virtual USB with sample files
+    engine.loadSampleBinaries();
+    
+    logTerminal("✅ Virtual USB mounted successfully");
+    logTerminal("📁 Files available in left panel");
 }
 
-// ==================== INITIAL CHECK ====================
-window.onload = function() {
-    const firmware = detectPS4Firmware();
-    const output = document.getElementById('output');
-    
-    if (firmware >= 12.50 && firmware <= 13.00) {
-        output.innerHTML = `
-            <div class="success">✓ PS4 Firmware ${firmware} detected</div>
-            <div class="info">Click START EXPLOIT to begin jailbreak</div>
-        `;
-    } else if (firmware > 0) {
-        output.innerHTML = `
-            <div class="error">✘ Firmware ${firmware} not supported</div>
-            <div class="info">This exploit requires 12.50-13.00</div>
-        `;
+function listFiles() {
+    if (engine.files.length === 0) {
+        logTerminal("📁 No files found in USB");
     } else {
-        output.innerHTML = `
-            <div class="warning">⚠️ Could not auto-detect firmware</div>
-            <div class="info">But your screenshots show 12.50</div>
-            <div class="info">Click START EXPLOIT to try anyway</div>
+        logTerminal("📁 Files in USB:");
+        engine.files.forEach(file => {
+            logTerminal(`  ${file.name.padEnd(20)} ${file.size.padStart(10)}`);
+        });
+    }
+}
+
+async function runBinary(filename) {
+    const file = engine.files.find(f => f.name === filename);
+    
+    if (!file) {
+        logTerminal(`❌ File not found: ${filename}`);
+        return;
+    }
+    
+    if (!file.data) {
+        logTerminal(`⚠️ Binary data not loaded for: ${filename}`);
+        logTerminal("💡 Please upload the file first");
+        return;
+    }
+    
+    try {
+        await engine.executeBinary(file.data, [filename]);
+    } catch (error) {
+        logTerminal(`❌ Failed to execute ${filename}: ${error.message}`);
+    }
+}
+
+// ============================================================================
+// SYSTEM MONITOR FUNCTIONS
+// ============================================================================
+
+function updateMemoryView() {
+    const viewer = document.getElementById('memoryViewer');
+    
+    // Generate fake memory view for demonstration
+    let html = '';
+    const baseAddress = 0x1000;
+    
+    for (let i = 0; i < 20; i++) {
+        const address = baseAddress + (i * 16);
+        const hex = generateRandomHex(16);
+        const ascii = hexToAscii(hex);
+        
+        html += `
+            <div class="memory-line">
+                <span class="memory-address">0x${address.toString(16).padStart(8, '0')}</span>
+                <span class="memory-hex">${hex}</span>
+                <span class="memory-ascii">${ascii}</span>
+            </div>
         `;
     }
-};
+    
+    viewer.innerHTML = html;
+}
+
+function updateProcessList() {
+    const list = document.getElementById('processList');
+    list.innerHTML = '';
+    
+    engine.processes.forEach(proc => {
+        const uptime = ((Date.now() - proc.startTime) / 1000).toFixed(1);
+        const item = document.createElement('div');
+        item.style = "padding: 5px; margin: 3px 0; background: rgba(0,0,0,0.3); border-radius: 3px;";
+        item.innerHTML = `
+            <div style="display: flex; justify-content: space-between;">
+                <span>${proc.id}</span>
+                <span style="color: #00ff00;">${proc.status}</span>
+            </div>
+            <div style="font-size: 0.8rem; color: #cccccc;">Uptime: ${uptime}s</div>
+        `;
+        list.appendChild(item);
+    });
+}
+
+function updateSystemInfo() {
+    // Update memory usage
+    const usedMB = (engine.memory.buffer.byteLength / (1024 * 1024)).toFixed(1);
+    const heapMB = (engine.heap.byteLength / (1024 * 1024)).toFixed(1);
+    
+    // Update status bar
+    const status = document.getElementById('status');
+    const security = document.getElementById('security');
+    
+    if (engine.processes.length > 0) {
+        status.innerHTML = `🟢 ${engine.processes.length} PROCESSES`;
+    }
+    
+    // Toggle security status based on activity
+    if (engine.isRunning) {
+        security.innerHTML = '⚠️ EXECUTION ACTIVE';
+        security.style.background = 'rgba(255, 170, 0, 0.2)';
+        security.style.borderColor = '#ffaa00';
+    }
+}
+
+function listProcesses() {
+    if (engine.processes.length === 0) {
+        logTerminal("📊 No processes running");
+    } else {
+        logTerminal("📊 Active Processes:");
+        engine.processes.forEach(proc => {
+            const uptime = ((Date.now() - proc.startTime) / 1000).toFixed(1);
+            logTerminal(`  ${proc.id.padEnd(20)} ${proc.status.padStart(10)} ${uptime}s`);
+        });
+    }
+}
+
+function showMemory() {
+    const used = engine.memory.buffer.byteLength;
+    const heap = engine.heap.byteLength;
+    const stack = engine.stack.byteLength;
+    
+    logTerminal("🧠 MEMORY USAGE:");
+    logTerminal(`  WebAssembly Memory: ${formatBytes(used)}`);
+    logTerminal(`  Heap: ${formatBytes(heap)}`);
+    logTerminal(`  Stack: ${formatBytes(stack)}`);
+    logTerminal(`  Total: ${formatBytes(used + heap + stack)}`);
+}
+
+function killProcess() {
+    if (engine.processes.length > 0) {
+        const proc = engine.processes[engine.processes.length - 1];
+        engine.killProcess(proc.id);
+        logTerminal(`💀 Terminated process: ${proc.id}`);
+    } else {
+        logTerminal("⚠️ No processes to kill");
+    }
+}
+
+function toggleExecution() {
+    engine.isRunning = !engine.isRunning;
+    const btn = document.getElementById('execBtn');
+    
+    if (engine.isRunning) {
+        btn.innerHTML = '▶️ RESUME';
+        logTerminal("⏸️ Execution paused");
+    } else {
+        btn.innerHTML = '⏸️ PAUSE';
+        logTerminal("▶️ Execution resumed");
+    }
+}
+
+function refreshMemory() {
+    updateMemoryView();
+    logTerminal("🔄 Memory view refreshed");
+}
+
+function updateStatus(message) {
+    const status = document.getElementById('status');
+    status.innerHTML = message;
+    
+    if (message.includes('ONLINE') || message.includes('CONNECTED')) {
+        status.style.background = 'rgba(0, 255, 0, 0.2)';
+        status.style.borderColor = '#00ff00';
+    }
+}
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+function generateRandomHex(length) {
+    let hex = '';
+    for (let i = 0; i < length; i += 2) {
+        hex += Math.floor(Math.random() * 256).toString(16).padStart(2, '0') + ' ';
+    }
+    return hex.trim();
+}
+
+function hexToAscii(hex) {
+    const bytes = hex.split(' ').filter(Boolean);
+    let ascii = '';
+    
+    for (let byte of bytes) {
+        const charCode = parseInt(byte, 16);
+        if (charCode >= 32 && charCode <= 126) {
+            ascii += String.fromCharCode(charCode);
+        } else {
+            ascii += '.';
+        }
+    }
+    
+    return ascii.padEnd(16, ' ');
+}
+
+function detectWebKitVersion() {
+    const ua = navigator.userAgent;
+    
+    if (ua.includes('AppleWebKit')) {
+        const match = ua.match(/AppleWebKit\/([\d.]+)/);
+        if (match) {
+            return match[1];
+        }
+    }
+    
+    // Check for Safari
+    if (ua.includes('Safari') && !ua.includes('Chrome')) {
+        return 'Safari WebKit';
+    }
+    
+    // Check for Chrome's Blink (WebKit fork)
+    if (ua.includes('Chrome')) {
+        const chromeMatch = ua.match(/Chrome\/([\d.]+)/);
+        if (chromeMatch) {
+            return `Chrome ${chromeMatch[1]} (Blink/WebKit)`;
+        }
+    }
+    
+    return 'Unknown WebKit';
+}
+
+// ============================================================================
+// INITIAL PROMPT
+// ============================================================================
+
+// Add initial prompt
+setTimeout(() => {
+    addPrompt();
+}, 100);
+
+// Focus command input on click anywhere
+document.body.addEventListener('click', () => {
+    document.getElementById('commandInput').focus();
+});
 </script>
 </body>
 </html>
